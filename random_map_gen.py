@@ -1,13 +1,14 @@
 from PyQt5 import QtGui, QtWidgets
+from random import choice
+from pprint import pprint
+from PyQt5.Qt import *
+from PIL import ImageGrab
 import sys
 
 extra_s = 'C:\\Users\\1\\PycharmProjects\\untitled\\project_pyqt\\'
 
 
 def make_map():
-    from random import choice
-    from pprint import pprint
-
     def gen():
         n, m = 4, 8
         a = [[''] * m for _ in range(n)]
@@ -225,7 +226,6 @@ def make_map():
         print()
         return a
 
-    x = ''
     while True:
         x = gen()
         if x:
@@ -233,10 +233,50 @@ def make_map():
     return x
 
 
-class Ui_Form(object):
-    def setupUi(self, Form):
-        Form.setObjectName("Form")
-        Form.resize(800, 500)
+class Ui_form(object):
+    def save_img(self):
+        filename = 'Screenshot.jpg'
+        p = window.geometry()
+        bbox_section = (p.x(), p.y(), p.x() + 800, p.y() + 400)
+        screen = ImageGrab.grab(bbox_section)
+        screen.save(filename)
+
+    def print_img(self):
+        filename = 'Screenshot.jpg'
+        p = window.geometry()
+        bbox_section = (p.x(), p.y(), p.x() + 800, p.y() + 400)
+        screen = ImageGrab.grab(bbox_section)
+        screen.save(filename)
+        printer = QPrinter()
+        te = QTextEdit()
+        html = '<h1 align="center">ТРАЕКТОРИЯ - ПАЗЛ<br>ВАРИАНТ: 1</h1><br><img src="Screenshot.jpg" width="300px" rotate="90">'
+        te.setHtml(html)
+        '''dialog = QPrintDialog()
+        if dialog.exec_() == QDialog.Accepted:
+            printer.setOrientation(QPrinter.Landscape)
+            te.document().print_(dialog.printer())'''
+        print_dialog = QPrintDialog(printer)
+        if print_dialog.exec() == QDialog.Accepted:
+            #printer.setOutputFileName(filename)
+            printer.setOrientation(QPrinter.Landscape)
+            te.print(printer)
+
+    def regen(self, form):
+        pass
+
+    def __init__(self, form):
+        self.form = form
+        form.setObjectName("Map_gen")
+        form.resize(800, 500)
+        self.save = QtWidgets.QPushButton(form)
+        self.save.move(200, 450)
+        self.save.setText('Сохранить изображение')
+        self.save.clicked.connect(self.save_img)
+
+        self.print = QtWidgets.QPushButton(form)
+        self.print.move(400, 450)
+        self.print.setText('Напечатать изображение')
+        self.print.clicked.connect(self.print_img)
 
         a = make_map()
         n = 4
@@ -292,34 +332,19 @@ class Ui_Form(object):
                     angle = -90
                 pic = pic.scaledToHeight(100)
                 t = QtGui.QTransform().rotate(angle)
-                self.lbl2 = QtWidgets.QLabel(Form)
+                self.lbl2 = QtWidgets.QLabel(form)
                 self.lbl2.move(100 * j, 100 * i)
                 self.lbl2.setPixmap(pic.transformed(t))
-
-        '''pic = QtGui.QPixmap()
-        pic.load('tl.jpg')
-        pic = pic.scaledToHeight(100)
-        self.angle = -90
-
-        t = QtGui.QTransform().rotate(self.angle)
-
-
-        self.lbl2 = QtWidgets.QLabel(Form)
-        self.lbl2.move(0, 0)
-        self.lbl2.setPixmap(pic.transformed(t))
-        pic2 = QtGui.QPixmap()
-        pic2.load('tl.jpg')
-        pic2 = pic2.scaledToHeight(100)
-
-        self.lbl2 = QtWidgets.QLabel(Form)
-        self.lbl2.move(0, 100)
-        self.lbl2.setPixmap(pic2)'''
+'''
+        self.gen = QtWidgets.QPushButton(form)
+        self.gen.move(50, 450)
+        self.gen.setText('Сгенерировать изображение')
+        self.gen.clicked.connect(self.regen)'''
 
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     window = QtWidgets.QWidget()
-    ui = Ui_Form()
-    ui.setupUi(window)
+    ui = Ui_form(window)
     window.show()
     sys.exit(app.exec_())
