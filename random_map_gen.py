@@ -5,8 +5,6 @@ from PyQt5.Qt import *
 from PIL import ImageGrab
 import sys
 
-extra_s = 'C:\\Users\\1\\PycharmProjects\\untitled\\project_pyqt\\'
-
 
 def make_map():
     def gen():
@@ -22,6 +20,7 @@ def make_map():
         a[n - 1][m - 1] = choice(['tl', 'ctl'])
         pprint(a)
         print()
+
         for i in range(1, m - 2):
             # Заполнение верхней строки
             if a[0][i - 1] in ['rb', 'rbl', 'crb', 'rl']:
@@ -33,6 +32,7 @@ def make_map():
                 a[n - 1][i] = choice(['tl', 'ctl', 'trl', 'rl'])
             else:
                 a[n - 1][i] = choice(['tr', 'ctr'])
+
         # Заполнение предпоследней клетки в верхней строке
         if a[0][m - 3] in ['rb', 'rbl', 'crb', 'rl']:
             a[0][m - 2] = choice(['rbl', 'rl'])
@@ -45,6 +45,7 @@ def make_map():
             a[n - 1][m - 2] = choice(['tr', 'ctr'])
         pprint(a)
         print()
+
         for i in range(1, n - 1):
             # Заполнение левого столбца
             a[i][0] = choice(['trb', 'tb'])
@@ -53,6 +54,7 @@ def make_map():
         pprint(a)
         print()
 
+        # Заполнение центральной части карты
         for i in range(1, n - 2):
             for j in range(1, m - 2):
                 if a[i][j - 1] in ['ctl', 'cbl', 'bl', 'tl', 'tb', 'tbl']:
@@ -67,6 +69,8 @@ def make_map():
                         a[i][j] = choice(['tl', 'ctl', 'tbl', 'trl', 'trbl'])
         pprint(a)
         print()
+
+        # Заполнение предспоследней строки карты
         for i in range(1, m - 2):
             # Если нижняя закрыта
             if a[n - 1][i] == 'rl' or a[n - 1][i] == '':
@@ -106,6 +110,8 @@ def make_map():
                         a[n - 2][i] = choice(['tbl', 'trbl'])
         pprint(a)
         print()
+
+        # Заполнение предспоследнего столбца карты
         for i in range(1, n - 2):
             # print(i, m - 2)
             # Если правая закрыта
@@ -146,6 +152,7 @@ def make_map():
                         a[i][m - 2] = choice(['trbl', 'trl'])
         pprint(a)
         print()
+
         # Если нижняя закрыта
         if a[n - 1][m - 2] in ['rl', '']:
             # Если правая закрыта
@@ -233,55 +240,33 @@ def make_map():
     return x
 
 
-class Ui_form(object):
-    def save_img(self):
-        filename = 'Screenshot.jpg'
-        p = window.geometry()
-        bbox_section = (p.x(), p.y(), p.x() + 800, p.y() + 400)
-        screen = ImageGrab.grab(bbox_section)
-        screen.save(filename)
-
-    def print_img(self):
-        filename = 'Screenshot.jpg'
-        p = window.geometry()
-        bbox_section = (p.x(), p.y(), p.x() + 800, p.y() + 400)
-        screen = ImageGrab.grab(bbox_section)
-        screen.save(filename)
-        printer = QPrinter()
-        te = QTextEdit()
-        html = '<h1 align="center">ТРАЕКТОРИЯ - ПАЗЛ<br>ВАРИАНТ: 1</h1><br><img src="Screenshot.jpg" width="300px" rotate="90">'
-        te.setHtml(html)
-        '''dialog = QPrintDialog()
-        if dialog.exec_() == QDialog.Accepted:
-            printer.setOrientation(QPrinter.Landscape)
-            te.document().print_(dialog.printer())'''
-        print_dialog = QPrintDialog(printer)
-        if print_dialog.exec() == QDialog.Accepted:
-            #printer.setOutputFileName(filename)
-            printer.setOrientation(QPrinter.Landscape)
-            te.print(printer)
-
-    def regen(self, form):
-        pass
-
+class Generator(object):
     def __init__(self, form):
         self.form = form
         form.setObjectName("Map_gen")
         form.resize(800, 500)
+
         self.save = QtWidgets.QPushButton(form)
         self.save.move(200, 450)
-        self.save.setText('Сохранить изображение')
+        self.save.setText('Сохранить')
         self.save.clicked.connect(self.save_img)
 
         self.print = QtWidgets.QPushButton(form)
         self.print.move(400, 450)
-        self.print.setText('Напечатать изображение')
+        self.print.setText('Печать')
         self.print.clicked.connect(self.print_img)
+
+        self.gen = QtWidgets.QPushButton(form)
+        self.gen.move(50, 450)
+        self.gen.setText('Сгенерировать')
+        self.gen.clicked.connect(self.regen)
 
         a = make_map()
         n = 4
         m = 8
         print(a)
+
+        # Вывод итоговой карты
         for i in range(n):
             for j in range(m):
                 angle = 0
@@ -335,16 +320,98 @@ class Ui_form(object):
                 self.lbl2 = QtWidgets.QLabel(form)
                 self.lbl2.move(100 * j, 100 * i)
                 self.lbl2.setPixmap(pic.transformed(t))
-'''
-        self.gen = QtWidgets.QPushButton(form)
-        self.gen.move(50, 450)
-        self.gen.setText('Сгенерировать изображение')
-        self.gen.clicked.connect(self.regen)'''
+
+
+    def save_img(self):
+        filename = 'Screenshot.jpg'
+        p = window.geometry()
+        bbox_section = (p.x(), p.y(), p.x() + 800, p.y() + 400)
+        screen = ImageGrab.grab(bbox_section)
+        screen.save(filename)
+
+    def print_img(self):
+        filename = 'Screenshot.jpg'
+        p = window.geometry()
+        bbox_section = (p.x(), p.y(), p.x() + 800, p.y() + 400)
+        screen = ImageGrab.grab(bbox_section)
+        screen.save(filename)
+        printer = QPrinter()
+        te = QTextEdit()
+        html = '<h1 align="center">ТРАЕКТОРИЯ - ПАЗЛ<br>' \
+               'ВАРИАНТ: 1</h1><br><img src="Screenshot.jpg">'
+        te.setHtml(html)
+        print_dialog = QPrintDialog(printer)
+        if print_dialog.exec() == QDialog.Accepted:
+            printer.setOrientation(QPrinter.Landscape)
+            te.print(printer)
+
+    def regen(self):
+        form = self.form
+        a = make_map()
+        n = 4
+        m = 8
+        print(a)
+
+        # Вывод итоговой карты
+        for i in range(n):
+            for j in range(m):
+                angle = 0
+                pic = QtGui.QPixmap()
+                if a[i][j] == '':
+                    pic.load("''.jpg")
+                elif a[i][j] == 'bl':
+                    pic.load('bl.jpg')
+                    angle = 90
+                elif a[i][j] == 'cbl':
+                    angle = -90
+                    pic.load('cbl.jpg')
+                elif a[i][j] == 'crb':
+                    angle = 180
+                    pic.load('crb.jpg')
+                elif a[i][j] == 'ctl':
+                    pic.load('ctl.jpg')
+                elif a[i][j] == 'ctr':
+                    pic.load('ctr.jpg')
+                    angle = 90
+                elif a[i][j] == 'rb':
+                    pic.load('rb.jpg')
+                elif a[i][j] == 'rbl':
+                    pic.load('rbl.jpg')
+                    angle = 90
+                elif a[i][j] == 'rl':
+                    pic.load('rl.jpg')
+                    angle = 90
+                elif a[i][j] == 'tb':
+                    pic.load('tb.jpg')
+                elif a[i][j] == 'tbl':
+                    pic.load('tbl.jpg')
+                    angle = 180
+                elif a[i][j] == 'tl':
+                    pic.load('tl.jpg')
+                    angle = 180
+                elif a[i][j] == 'tr':
+                    pic.load('tr.jpg')
+                    angle = -90
+                elif a[i][j] == 'trb':
+                    pic.load('trb.jpg')
+                elif a[i][j] == 'rb':
+                    pic.load('rb.jpg')
+                elif a[i][j] == 'trbl':
+                    pic.load('trbl.jpg')
+                elif a[i][j] == 'trl':
+                    pic.load('trl.jpg')
+                    angle = -90
+                pic = pic.scaledToHeight(100)
+                t = QtGui.QTransform().rotate(angle)
+                self.lbl2 = QtWidgets.QLabel(form)
+                self.lbl2.move(100 * j, 100 * i)
+                self.lbl2.setPixmap(pic.transformed(t))
+                self.lbl2.show()
 
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     window = QtWidgets.QWidget()
-    ui = Ui_form(window)
+    ui = Generator(window)
     window.show()
     sys.exit(app.exec_())
