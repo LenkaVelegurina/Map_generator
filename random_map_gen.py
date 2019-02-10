@@ -247,17 +247,17 @@ class Generator(object):
         form.resize(800, 500)
 
         self.save = QtWidgets.QPushButton(form)
-        self.save.move(200, 450)
+        self.save.move(350, 450)
         self.save.setText('Сохранить')
         self.save.clicked.connect(self.save_img)
 
         self.print = QtWidgets.QPushButton(form)
-        self.print.move(400, 450)
+        self.print.move(550, 450)
         self.print.setText('Печать')
         self.print.clicked.connect(self.print_img)
 
         self.gen = QtWidgets.QPushButton(form)
-        self.gen.move(50, 450)
+        self.gen.move(150, 450)
         self.gen.setText('Сгенерировать')
         self.gen.clicked.connect(self.regen)
 
@@ -320,7 +320,6 @@ class Generator(object):
                 self.lbl2 = QtWidgets.QLabel(form)
                 self.lbl2.move(100 * j, 100 * i)
                 self.lbl2.setPixmap(pic.transformed(t))
-
 
     def save_img(self):
         filename = 'Screenshot.jpg'
