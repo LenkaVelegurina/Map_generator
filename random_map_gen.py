@@ -2,13 +2,13 @@ from PyQt5 import QtGui, QtWidgets
 from random import choice
 from pprint import pprint
 from PyQt5.Qt import *
+import os
 from PIL import ImageGrab
 import sys
 
 
-def make_map():
-    def gen():
-        n, m = 4, 8
+def make_map(n=4, m=8):
+    def gen(n=4, m=8):
         a = [[''] * m for _ in range(n)]
         all_kinds = ['tb', 'lr', 'trbl', 'tr', 'tl', 'bl',
                      'rb', 'ctr', 'ctl', 'cbl', 'crb', 'trb',
@@ -234,7 +234,7 @@ def make_map():
         return a
 
     while True:
-        x = gen()
+        x = gen(n, m)
         if x:
             break
     return x
@@ -242,102 +242,92 @@ def make_map():
 
 class Generator(object):
     def __init__(self, form):
+        n = 4
+        m = 8
         self.form = form
         form.setObjectName("Map_gen")
-        form.resize(800, 500)
+        form.resize(m * 100, n * 100 + 100)
 
+        '''self.phrase = QtWidgets.QLabel(form)
+        self.phrase.setText('Введите размер карты:')
+        self.phrase.move(m * 50 - 100, n * 100 + 30)
+
+        self.size = QtWidgets.QLineEdit(form)
+        self.size.move(m * 50 + 50, n * 100 + 30)
+        '''
         self.save = QtWidgets.QPushButton(form)
-        self.save.move(350, 450)
+        self.save.move(m // 3 * 200 - 50, n * 100 + 60)
         self.save.setText('Сохранить')
         self.save.clicked.connect(self.save_img)
 
         self.print = QtWidgets.QPushButton(form)
-        self.print.move(550, 450)
+        self.print.move(m * 100 - 180, n * 100 + 60)
         self.print.setText('Печать')
         self.print.clicked.connect(self.print_img)
 
         self.gen = QtWidgets.QPushButton(form)
-        self.gen.move(150, 450)
+        self.gen.move(m // 3 * 100 - 100, n * 100 + 60)
         self.gen.setText('Сгенерировать')
         self.gen.clicked.connect(self.regen)
 
-        a = make_map()
-        n = 4
-        m = 8
-        print(a)
-
-        # Вывод итоговой карты
-        for i in range(n):
-            for j in range(m):
-                angle = 0
-                pic = QtGui.QPixmap()
-                if a[i][j] == '':
-                    pic.load("''.jpg")
-                elif a[i][j] == 'bl':
-                    pic.load('bl.jpg')
-                    angle = 90
-                elif a[i][j] == 'cbl':
-                    angle = -90
-                    pic.load('cbl.jpg')
-                elif a[i][j] == 'crb':
-                    angle = 180
-                    pic.load('crb.jpg')
-                elif a[i][j] == 'ctl':
-                    pic.load('ctl.jpg')
-                elif a[i][j] == 'ctr':
-                    pic.load('ctr.jpg')
-                    angle = 90
-                elif a[i][j] == 'rb':
-                    pic.load('rb.jpg')
-                elif a[i][j] == 'rbl':
-                    pic.load('rbl.jpg')
-                    angle = 90
-                elif a[i][j] == 'rl':
-                    pic.load('rl.jpg')
-                    angle = 90
-                elif a[i][j] == 'tb':
-                    pic.load('tb.jpg')
-                elif a[i][j] == 'tbl':
-                    pic.load('tbl.jpg')
-                    angle = 180
-                elif a[i][j] == 'tl':
-                    pic.load('tl.jpg')
-                    angle = 180
-                elif a[i][j] == 'tr':
-                    pic.load('tr.jpg')
-                    angle = -90
-                elif a[i][j] == 'trb':
-                    pic.load('trb.jpg')
-                elif a[i][j] == 'rb':
-                    pic.load('rb.jpg')
-                elif a[i][j] == 'trbl':
-                    pic.load('trbl.jpg')
-                elif a[i][j] == 'trl':
-                    pic.load('trl.jpg')
-                    angle = -90
-                pic = pic.scaledToHeight(100)
-                t = QtGui.QTransform().rotate(angle)
-                self.lbl2 = QtWidgets.QLabel(form)
-                self.lbl2.move(100 * j, 100 * i)
-                self.lbl2.setPixmap(pic.transformed(t))
+        self.save.move(m * 50 - 50, n * 100 + 60)
+        self.print.move(m * 100 - 255, n * 100 + 60)
+        self.gen.move(150, n * 100 + 60)
 
     def save_img(self):
-        filename = 'Screenshot.jpg'
         p = window.geometry()
         bbox_section = (p.x(), p.y(), p.x() + 800, p.y() + 400)
         screen = ImageGrab.grab(bbox_section)
+        x = 1
+        path = os.getcwd()
+        if path[-4:] != 'SAVE':
+            path = os.getcwd() + '\\SAVE'
+        os.chdir(path)
+        for current_dir, dirs, files in os.walk(path):
+            print(os.getcwd())
+            print(path)
+            for j in files:
+                if os.access(j, os.F_OK):
+                    print(j)
+                    try:
+                        print(j[4:-4], j[-4:], )
+                        if j[:4] == 'line' and j[-4:] == '.jpg':
+                            x = max(int(j[4:-4]) + 1, x)
+                    except BaseException:
+                        continue
+        print(x)
+        filename = 'line{}.jpg'.format(x)
         screen.save(filename)
+        os.chdir(path[:-5])
 
     def print_img(self):
-        filename = 'Screenshot.jpg'
         p = window.geometry()
         bbox_section = (p.x(), p.y(), p.x() + 800, p.y() + 400)
         screen = ImageGrab.grab(bbox_section)
+        x = 1
+        path = os.getcwd()
+        if path[-4:] != 'SAVE':
+            path = os.getcwd() + '\\SAVE'
+        os.chdir(path)
+        for current_dir, dirs, files in os.walk(path):
+            print(os.getcwd())
+            print(path)
+            for j in files:
+                if os.access(j, os.F_OK):
+                    print(j)
+                    try:
+                        print(j[4:-4], j[-4:], )
+                        if j[:4] == 'line' and j[-4:] == '.jpg':
+                            x = max(int(j[4:-4]) + 1, x)
+                    except BaseException:
+                        continue
+        print(x)
+        filename = 'line{}.jpg'.format(x)
         screen.save(filename)
         printer = QPrinter()
         te = QTextEdit()
         html = '<h1 align="center">ТРАЕКТОРИЯ - ПАЗЛ<br>' \
-               'ВАРИАНТ: 1</h1><br><img src="Screenshot.jpg">'
+               'ВАРИАНТ: {}</h1><br><img src="line{}.jpg">'.format(x, x)
         te.setHtml(html)
         print_dialog = QPrintDialog(printer)
         if print_dialog.exec() == QDialog.Accepted:
@@ -345,10 +335,24 @@ class Generator(object):
             te.print(printer)
 
     def regen(self):
-        form = self.form
-        a = make_map()
+        #n, m = map(int, self.size.text().split(', '))
+        #print(n, m)
         n = 4
         m = 8
+        form = self.form
+        form.resize(m * 100, n * 100 + 100)
+
+        """self.phrase.move(m * 50 - 100, n * 100 + 30)
+        self.size.move(m * 50 + 50, n * 100 + 30)"""
+        if m <= 5:
+            self.save.move(m * 50 - 50, n * 100 + 60)
+            self.print.move(m * 100 - 110, n * 100 + 60)
+            self.gen.move(10, n * 100 + 60)
+        else:
+            self.save.move(m * 50 - 50, n * 100 + 60)
+            self.print.move(m * 100 - 255, n * 100 + 60)
+            self.gen.move(150, n * 100 + 60)
+        a = make_map(n, m)
         print(a)
 
         # Вывод итоговой карты
